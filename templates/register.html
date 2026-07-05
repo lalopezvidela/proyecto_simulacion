@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Crear cuenta</h2>
+<p class="muted">Regístrate para acceder al sistema.</p>
+<form method="post" action="{{ url_for('register_page') }}">
+  <input type="text" name="full_name" placeholder="Nombre completo" required>
+  <input type="text" name="username" placeholder="Usuario" required>
+  <input type="email" name="email" placeholder="Correo electrónico (opcional)">
+  <input type="password" name="password" placeholder="Contraseña" required>
+  <input type="password" name="confirm_password" placeholder="Confirmar contraseña" required>
+  <button type="submit">Crear cuenta</button>
+</form>
+<p style="text-align:center;"><a href="{{ url_for('login_page') }}">Volver al login</a></p>
+{% endblock %}

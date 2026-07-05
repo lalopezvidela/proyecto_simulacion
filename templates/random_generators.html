@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Generadores de números aleatorios</h2>
+<div class="message">
+  <strong>Clasificación:</strong>
+  <ul>
+    <li><strong>Congruenciales:</strong> lineal, mixto y multiplicativo.</li>
+    <li><strong>No congruenciales:</strong> cuadrados medios, Fibonacci y autómata celular.</li>
+  </ul>
+</div>
+<form method="post" action="{{ url_for('random_generators') }}">
+  <select name="method" required>
+    <optgroup label="Congruenciales">
+      <option value="lineal" {% if method == 'lineal' %}selected{% endif %}>Lineal congruencial</option>
+      <option value="mixto" {% if method == 'mixto' %}selected{% endif %}>Mixto</option>
+      <option value="multiplicativo" {% if method == 'multiplicativo' %}selected{% endif %}>Multiplicativo</option>
+    </optgroup>
+    <optgroup label="No congruenciales">
+      <option value="cuadrado_medio" {% if method == 'cuadrado_medio' %}selected{% endif %}>Cuadrado medio</option>
+      <option value="fibonacci" {% if method == 'fibonacci' %}selected{% endif %}>Fibonacci</option>
+      <option value="automata_celular" {% if method == 'automata_celular' %}selected{% endif %}>Autómata celular</option>
+    </optgroup>
+  </select>
+  <input type="number" name="seed" placeholder="Semilla" required>
+  <input type="number" name="a" placeholder="a (si aplica)">
+  <input type="number" name="c" placeholder="c (si aplica)">
+  <input type="number" name="m" placeholder="m (si aplica)">
+  <input type="number" name="seed2" placeholder="Semilla 2 (si aplica)">
+  <input type="number" name="digits" placeholder="Dígitos (cuadrado medio)">
+  <input type="number" name="count" placeholder="Cantidad" value="10" required>
+  <button type="submit">Generar</button>
+</form>
+{% if sequence %}
+<div class="message">
+  <strong>Secuencia generada con {{ method_label }}:</strong><br>
+  {{ sequence }}
+</div>
+{% endif %}
+<p><a href="{{ url_for('dashboard') }}">Volver al menú</a></p>
+{% endblock %}

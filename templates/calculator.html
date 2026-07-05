@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Calculadora de simulación</h2>
+<p class="muted">Esta pantalla no genera números aleatorios: simula un experimento probabilístico con ensayos y probabilidad.</p>
+<form method="post" action="{{ url_for('calculator') }}">
+  <input type="number" name="trials" placeholder="Número de ensayos" min="1" required>
+  <input type="number" step="0.01" name="probability" placeholder="Probabilidad (0 a 1)" min="0" max="1" required>
+  <input type="number" name="seed" placeholder="Semilla (opcional)">
+  <button type="submit">Simular</button>
+</form>
+{% if result %}
+<div class="message">
+  <strong>Resultado:</strong><br>
+  Ensayos: {{ result.trials }}<br>
+  Probabilidad: {{ result.probability }}<br>
+  Éxitos obtenidos: {{ result.successes }}<br>
+  Éxitos esperados: {{ result.expected_successes }}<br>
+  Tasa esperada: {{ "%.2f"|format(result.expected_rate) }}
+</div>
+{% endif %}
+<p><a href="{{ url_for('dashboard') }}">Volver al menú</a></p>
+{% endblock %}

@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="statistical-shell">
+  <div class="statistical-header">
+    <div>
+      <h2>Pruebas estadísticas</h2>
+      <p class="muted">
+        Evalúa la calidad de secuencias pseudoaleatorias utilizando pruebas de media,
+        varianza, chi-cuadrado, Kolmogorov-Smirnov e independencia.
+      </p>
+    </div>
+    <a href="{{ url_for('dashboard') }}" class="back-link">← Volver al menú</a>
+  </div>
+
+  <div class="summary-grid">
+
+    <section class="panel">
+      <h3>Generar secuencia</h3>
+
+      <form method="post" action="{{ url_for('statistical_tests') }}">
+        <select name="method">
+          <option value="lineal" {% if method == 'lineal' %}selected{% endif %}>Lineal congruencial</option>
+          <option value="mixto" {% if method == 'mixto' %}selected{% endif %}>Mixto</option>
+          <option value="multiplicativo" {% if method == 'multiplicativo' %}selected{% endif %}>Multiplicativo</option>
+          <option value="cuadrado_medio" {% if method == 'cuadrado_medio' %}selected{% endif %}>Cuadrado medio</option>
+          <option value="fibonacci" {% if method == 'fibonacci' %}selected{% endif %}>Fibonacci</option>
+          <option value="automata_celular" {% if method == 'automata_celular' %}selected{% endif %}>Autómata celular</option>
+        </select>
+
+        <input type="number" name="seed" placeholder="Semilla" value="1" required>
+        <input type="number" name="a" placeholder="Parámetro a">
+        <input type="number" name="c" placeholder="Parámetro c">
+        <input type="number" name="m" placeholder="Parámetro m">
+        <input type="number" name="seed2" placeholder="Semilla 2 (Fibonacci)">
+        <input type="number" name="digits" placeholder="Dígitos (Cuadrado medio)">
+        <input type="number" name="count" placeholder="Cantidad de valores" value="20">
+
+        <button type="submit">Ejecutar pruebas</button>
+      </form>
+    </section>
+
+    <section class="panel">
+
+      <h3>Resumen operativo</h3>
+
+      <p class="muted">
+        Método seleccionado: {{ method_label }}
+      </p>
+
+      {% if result %}
+
+      <div class="pill-row">
+
+        <span class="pill pass">
+          Pruebas aprobadas:
+          {{ result["summary"]["passed"] }}/{{ result["summary"]["total"] }}
+        </span>
+
+        <span class="pill">
+          Valores generados:
+          {{ result["values"]|length }}
+        </span>
+
+      </div>
+
+      <div class="details-grid">
+
+        <div>
+
+          <h4>Secuencia</h4>
+
+          <pre>{{ result["values"] }}</pre>
+
+        </div>
+
+        <div>
+
+          <h4>Frecuencia</h4>
+
+          <div class="bar-chart">
+
+            {% for item in frequency_bars %}
+
+            <div class="bar-row">
+
+              <span>{{ item.label }}</span>
+
+              <div class="bar-track">
+                <div class="bar-fill" style="width: {{ item.width }}%;"></div>
+              </div>
+
+              <span>{{ item.value }}</span>
+
+            </div>
+
+            {% endfor %}
+
+          </div>
+
+        </div>
+
+      </div>
+
+      {% else %}
+
+      <p class="muted">
+        Aún no se han ejecutado pruebas. Completa los parámetros y genera una secuencia.
+      </p>
+
+      {% endif %}
+
+    </section>
+
+  </div>
+
+  {% if result %}
+
+  <section class="panel">
+
+    <h3>Resultados detallados</h3>
+
+    <div class="details-grid">
+
+      {% for item in result["reports"] %}
+
+      <article class="test-card">
+
+        <div class="test-header">
+
+          <strong>{{ item.name }}</strong>
+
+          <span class="status {{ 'pass' if item.result.pass else 'fail' }}">
+            {{ 'Aprobada' if item.result.pass else 'No aprobada' }}
+          </span>
+
+        </div>
+
+        <p class="muted">
+          {{ item.description }}
+        </p>
+
+        <div class="pill-row">
+          <span class="pill">
+            Fórmula: {{ item.formula }}
+          </span>
+        </div>
+
+        <div class="interpretation">
+
+          <strong>Desarrollo:</strong>
+          {{ item.calculation }}
+
+          <br>
+
+          <strong>Resultado:</strong>
+          {{ item.metric|round(4) }}
+
+          <br>
+
+          <strong>Interpretación:</strong>
+          {{ item.result.interpretation }}
+
+        </div>
+
+      </article>
+
+      {% endfor %}
+
+    </div>
+
+  </section>
+
+  {% endif %}
+
+</div>
+{% endblock %}

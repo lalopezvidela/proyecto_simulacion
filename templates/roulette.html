@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="roulette-shell">
+  <div class="roulette-header">
+    <div>
+      <h2>Simulación Monte Carlo - Ruleta</h2>
+      <p class="muted">Simula giros, apuestas y resultados</p>
+    </div>
+    <a href="{{ url_for('dashboard') }}" class="back-link">← Volver al menú</a>
+  </div>
+
+  <div class="roulette-grid">
+    <section class="panel panel-config">
+      <h3>Configuración</h3>
+      <form method="post" action="{{ url_for('roulette') }}">
+        <input type="number" name="simulations" placeholder="Número de simulaciones" min="1" required>
+        <input type="number" step="0.01" name="initial_capital" placeholder="Capital inicial" min="1" required>
+        <input type="number" step="0.01" name="bet_amount" placeholder="Monto por apuesta" min="1" required>
+        <select name="bet_type">
+          <option value="Rojo">Rojo</option>
+          <option value="Negro">Negro</option>
+          <option value="Par">Par</option>
+          <option value="Impar">Impar</option>
+          <option value="Número específico">Número específico</option>
+          <option value="Docena">Docena</option>
+          <option value="Columna">Columna</option>
+        </select>
+        <input type="number" name="selected_number" placeholder="Número específico (0 a 36)">
+        <input type="number" name="docena" placeholder="Docena (1, 2 o 3)">
+        <input type="number" name="column" placeholder="Columna (1, 2 o 3)">
+        <button type="submit">Iniciar simulación</button>
+      </form>
+    </section>
+
+    <section class="panel panel-wheel">
+      <div class="wheel-stage">
+        <div class="wheel-card">
+          <div class="wheel-outer">
+            <div class="wheel-center"></div>
+            <div class="wheel-ball"></div>
+            <div class="wheel-pointer"></div>
+          </div>
+        </div>
+        <div class="result-pill">
+          <span class="label">Resultado</span>
+          <strong>{% if result %}{{ result.history[-1].number }} · {{ result.history[-1].color }}{% else %}Esperando giro{% endif %}</strong>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  {% if result %}
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span>Capital inicial</span>
+      <strong>{{ result.initial_capital }}</strong>
+    </div>
+    <div class="stat-card">
+      <span>Capital final</span>
+      <strong>{{ result.final_capital }}</strong>
+    </div>
+    <div class="stat-card">
+      <span>Ganancia / pérdida</span>
+      <strong>{{ result.profit }}</strong>
+    </div>
+    <div class="stat-card">
+      <span>Victorias</span>
+      <strong>{{ result.wins }}</strong>
+    </div>
+  </div>
+
+  <div class="metrics-grid">
+    <div class="panel">
+      <h3>Resumen</h3>
+      <ul class="metric-list">
+        <li>Total de giros: {{ result.total_spins }}</li>
+        <li>Derrotas: {{ result.losses }}</li>
+        <li>Probabilidad experimental: {{ (result.experimental_probability * 100) | round(2) }}%</li>
+        <li>Porcentaje de aciertos: {{ result.win_percentage }}%</li>
+        <li>Número más repetido: {{ result.most_frequent_number }}</li>
+        <li>Color más frecuente: {{ result.most_frequent_color }}</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Historial</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Giro</th><th>Número</th><th>Color</th><th>Resultado</th><th>Capital</th></tr>
+          </thead>
+          <tbody>
+            {% for item in result.history[:12] %}
+            <tr>
+              <td>{{ item.spin }}</td>
+              <td>{{ item.number }}</td>
+              <td>{{ item.color }}</td>
+              <td>{{ 'Ganó' if item.won else 'Perdió' }}</td>
+              <td>{{ item.capital }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
