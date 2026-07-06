@@ -1,45 +1,514 @@
 {% extends "base.html" %}
+
 {% block content %}
-<h2>Simulación COVID</h2>
-<p class="muted">Configura el modelo y observa la evolución del sistema. El tamaño de la grilla debe ser mayor o igual a 5.</p>
+
+<style>
+body{
+    background:#f4f8c8;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+.covid-container{
+    max-width:1300px;
+    margin:40px auto;
+    padding:20px;
+}
+
+
+.covid-title{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+.covid-title h2{
+    margin-bottom:5px;
+}
+
+.form-card{
+    background:white;
+    padding:25px;
+    border-radius:15px;
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+    margin-bottom:25px;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(100px,1fr));
+    gap:15px;
+}
+
+.form-grid input{
+    width:100%;
+}
+
+button{
+    margin-top:20px;
+    width:100%;
+}
+.stats{
+    display:flex;
+    justify-content:center(auto-fit,minmax(170px,1fr));;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+
+.card{
+
+    padding:12px;
+    border-radius:15px;
+    text-align:center;
+    color:white;
+}
+
+.card:hover{
+
+    transform:translateY(-5px);
+
+}
+
+.card h3{
+
+    font-size:16px;
+    margin-bottom:10px;
+
+}
+
+.card p{
+
+    font-size:30px;
+    margin:0;
+
+}
+.total{
+    background:#3b82f6;
+}
+
+.sus{
+    background:#10b981;
+}
+
+.inf{
+    background:#ef4444;
+}
+
+.rec{
+    background:#6366f1;
+}
+
+.dead{
+    background:#37514a;
+}
+.peak{
+    background:#f59e0b; 
+}
+
+.step{
+    background:#c01bf3; 
+}
+
+.grid-card,
+.chart-card{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+    margin-top:25px;
+}
+
+.chart-card svg{
+    display:block;
+    margin:auto;
+    max-width:80%;
+}
+.chart-card{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+    margin-top:25px;
+    
+}
+
+.population-grid{
+
+    display:grid;
+    justify-content:center;
+    gap:3px;
+    margin:25px auto;
+    overflow:auto;
+    max-width:100%;
+    padding:20px;
+    border:1px solid #ddd;
+    border-radius:15px;
+    background:#fafafa;
+
+}
+
+.cell{
+
+    width:20px;
+    height:20px;
+    border-radius:50%;
+    transition:.2s;
+
+}
+
+.s0{
+    background:#27ae60;
+}
+
+.s1{
+    background:#e74c3c;
+}
+
+.s2{
+    background:#3498db;
+}
+
+.s3{
+    background:#2d3436;
+}
+.legend{
+    display:flex;
+    justify-content:center;
+    gap:30px;
+    flex-wrap:wrap;
+    margin-top:20px;
+ 
+
+}
+
+.legend span{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:#9e0cbf;
+    padding:8px 15px;
+    border-radius:20px;
+    font-size:14px;
+
+}
+
+.legend i{
+
+    width:15px;
+    height:15px;
+    border-radius:50%;
+    display:inline-block;
+
+}
+
+</style>
+
+<div class="covid-container">
+
+<div class="covid-title">
+
+
+<p>Modelo basado en autómatas celulares para analizar la propagación de una enfermedad.</p>
+
+</div>
+
+<div class="form-card">
+
 <form method="post" action="{{ url_for('covid_simulation') }}">
-  <input type="number" name="size" placeholder="Tamaño de la grilla (mínimo 5)" min="5" required>
-  <input type="number" name="infected" placeholder="Infectados iniciales" min="1" max="1000" required>
-  <input type="number" name="steps" placeholder="Pasos" min="1" max="100" required>
-  <button type="submit">Simular</button>
+
+<div class="form-grid">
+
+<input type="number"
+name="size"
+placeholder="Tamaño de la población"
+min="5"
+required>
+
+<input type="number"
+name="infected"
+placeholder="Infectados iniciales"
+min="1"
+required>
+
+<input type="number"
+name="steps"
+placeholder="Pasos"
+min="1"
+required>
+
+</div>
+
+<button type="submit">
+
+Ejecutar Simulación
+
+</button>
+
 </form>
+
+</div>
+
 {% if summary %}
-<div class="message">
-  <strong>Resumen final:</strong><br>
-  Población total: {{ summary.total }}<br>
-  Susceptibles: {{ summary.susceptible }}<br>
-  Infectados: {{ summary.infected }}<br>
-  Recuperados: {{ summary.recovered }}<br>
-  Fallecidos: {{ summary.deceased }}
+
+<div class="stats">
+
+<div class="card total">
+
+<h3>Población</h3>
+
+<p>{{ summary.total }}</p>
+
 </div>
+
+<div class="card sus">
+
+<h3>🟢 Susceptibles</h3>
+
+<p>{{ summary.susceptible }}</p>
+
+</div>
+
+<div class="card inf">
+
+<h3>🔴 Infectados</h3>
+
+<p>{{ summary.infected }}</p>
+
+</div>
+
+<div class="card rec">
+
+<h3>🔵 Recuperados</h3>
+
+<p>{{ summary.recovered }}</p>
+
+</div>
+
+<div class="card dead">
+
+<h3>⚫ Fallecidos</h3>
+
+<p>{{ summary.deceased }}</p>
+
+</div>
+<div class="card peak">
+
+    <h3>📈 Pico de Infectados</h3>
+
+    <p>{{ summary.max_infected }}</p>
+
+</div>
+
+<div class="card step">
+
+    <h3>⏱ Paso del Pico</h3>
+
+    <p>{{ summary.peak_step }}</p>
+
+</div>
+
+<div class="grid-card">
+
+<h3 style="text-align:center">
+
+Estado Final de la Población
+
+</h3>
+
+<div class="population-grid"
+
+style="grid-template-columns:repeat({{ summary.grid|length }},18px);">
+
+{% for row in summary.grid %}
+
+{% for cell in row %}
+
+<div class="cell s{{ cell }}"></div>
+
+{% endfor %}
+
+{% endfor %}
+
+</div>
+
+<div class="legend">
+
+<span><i style="background:#10b981"></i>Susceptible</span>
+
+<span><i style="background:#ef4444"></i>Infectado</span>
+
+<span><i style="background:#3b82f6"></i>Recuperado</span>
+
+<span><i style="background:#374151"></i>Fallecido</span>
+
+</div>
+
+</div>
+
+
 <div class="chart-card">
-  <strong>Evolución de la simulación</strong>
-  <svg viewBox="0 0 560 220" width="100%" height="220" role="img" aria-label="Gráfico de evolución COVID">
-    <line x1="30" y1="200" x2="540" y2="200" stroke="#64748b" stroke-width="1"></line>
-    <line x1="30" y1="20" x2="30" y2="200" stroke="#64748b" stroke-width="1"></line>
-    {% for item in summary.history %}
-    <circle cx="{{ item.x }}" cy="{{ item.y_susceptible }}" r="3" fill="#60a5fa"></circle>
-    <circle cx="{{ item.x }}" cy="{{ item.y_infected }}" r="3" fill="#f87171"></circle>
-    <circle cx="{{ item.x }}" cy="{{ item.y_recovered }}" r="3" fill="#34d399"></circle>
-    <circle cx="{{ item.x }}" cy="{{ item.y_deceased }}" r="3" fill="#facc15"></circle>
-    {% endfor %}
-    <polyline points="{% for item in summary.history %}{{ item.x }},{{ item.y_susceptible }} {% endfor %}" fill="none" stroke="#60a5fa" stroke-width="2"></polyline>
-    <polyline points="{% for item in summary.history %}{{ item.x }},{{ item.y_infected }} {% endfor %}" fill="none" stroke="#f87171" stroke-width="2"></polyline>
-    <polyline points="{% for item in summary.history %}{{ item.x }},{{ item.y_recovered }} {% endfor %}" fill="none" stroke="#34d399" stroke-width="2"></polyline>
-    <polyline points="{% for item in summary.history %}{{ item.x }},{{ item.y_deceased }} {% endfor %}" fill="none" stroke="#facc15" stroke-width="2"></polyline>
-  </svg>
-  <div class="legend">
-    <span><i style="background:#60a5fa"></i>Susceptibles</span>
-    <span><i style="background:#f87171"></i>Infectados</span>
-    <span><i style="background:#34d399"></i>Recuperados</span>
-    <span><i style="background:#facc15"></i>Fallecidos</span>
-  </div>
-</div>
+
+<h3 style="text-align:center">
+
+Evolución de la Simulación
+
+</h3>
+
+<svg viewBox="0 0 560 220" width="100%" height="250">
+
+<line x1="30" y1="200" x2="540" y2="200" stroke="#aaa"/>
+
+<line x1="30" y1="20" x2="30" y2="200" stroke="#aaa"/>
+
+<line x1="30" y1="155" x2="540" y2="155" stroke="#eee"/>
+
+<line x1="30" y1="110" x2="540" y2="110" stroke="#eee"/>
+
+<line x1="30" y1="65" x2="540" y2="65" stroke="#eee"/>
+
+<text x="5" y="200" font-size="10">0</text>
+<text x="5" y="155" font-size="10">{{ summary.total//4 }}</text>
+<text x="5" y="110" font-size="10">{{ summary.total//2 }}</text>
+<text x="5" y="65" font-size="10">{{ summary.total*3//4 }}</text>
+<text x="5" y="25" font-size="10">{{ summary.total }}</text>
+<polyline
+
+points="{% for item in summary.history %}{{ item.x }},{{ item.y_susceptible }} {% endfor %}"
+
+fill="none"
+
+stroke="#10b981"
+
+stroke-width="3"/>
+
+{% for item in summary.history %}
+
+<circle
+cx="{{ item.x }}"
+cy="{{ item.y_susceptible }}"
+r="3"
+fill="#10b981"/>
+
+{% endfor %}
+
+<polyline
+
+points="{% for item in summary.history %}{{ item.x }},{{ item.y_infected }} {% endfor %}"
+
+fill="none"
+
+stroke="#ef4444"
+
+stroke-width="3"/>
+{% for item in summary.history %}
+
+<circle
+cx="{{ item.x }}"
+cy="{{ item.y_infected }}"
+r="3"
+fill="#ef4444"/>
+
+{% endfor %}
+<polyline
+
+points="{% for item in summary.history %}{{ item.x }},{{ item.y_recovered }} {% endfor %}"
+
+fill="none"
+
+stroke="#3b82f6"
+
+stroke-width="3"/>
+{% for item in summary.history %}
+
+<circle
+cx="{{ item.x }}"
+cy="{{ item.y_recovered }}"
+r="3"
+fill="#3498db"/>
+
+{% endfor %}
+<polyline
+
+points="{% for item in summary.history %}{{ item.x }},{{ item.y_deceased }} {% endfor %}"
+
+fill="none"
+
+stroke="#374151"
+
+stroke-width="3"/>
+{% for item in summary.history %}
+
+<circle
+cx="{{ item.x }}"
+cy="{{ item.y_deceased }}"
+r="3"
+fill="#2d3436"/>
+
+{% endfor %}
+{% for item in summary.history %}
+
+{% if loop.index0 % 5 == 0 %}
+
+<line
+    x1="{{ item.x }}"
+    y1="200"
+    x2="{{ item.x }}"
+    y2="205"
+    stroke="#666"/>
+
+<text
+    x="{{ item.x }}"
+    y="218"
+    text-anchor="middle"
+    font-size="10"
+    fill="#444">
+
+{{ item.step }}
+
+</text>
+
 {% endif %}
-<p><a href="{{ url_for('dashboard') }}">Volver al menú</a></p>
+
+{% endfor %}
+<text
+    x="210"
+    y="210"
+    text-anchor="middle"
+    font-size="12"
+    fill="#333">
+
+Pasos
+
+</text>
+
+<text
+    x="-110"
+    y="5"
+    transform="rotate(-90)"
+    text-anchor="middle"
+    font-size="12"
+    fill="#333">
+
+Personas
+
+</text>
+</svg>
+
+<div class="legend">
+
+<span><i style="background:#10b981"></i>Susceptibles</span>
+
+<span><i style="background:#ef4444"></i>Infectados</span>
+
+<span><i style="background:#3b82f6"></i>Recuperados</span>
+
+<span><i style="background:#374151"></i>Fallecidos</span>
+
+</div>
+
+</div>
+
+{% endif %}
+
+</div>
+
 {% endblock %}

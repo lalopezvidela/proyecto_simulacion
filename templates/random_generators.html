@@ -1,40 +1,158 @@
 {% extends "base.html" %}
 {% block content %}
+
 <h2>Generadores de números aleatorios</h2>
+
 <div class="message">
-  <strong>Clasificación:</strong>
-  <ul>
-    <li><strong>Congruenciales:</strong> lineal, mixto y multiplicativo.</li>
-    <li><strong>No congruenciales:</strong> cuadrados medios, Fibonacci y autómata celular.</li>
-  </ul>
+    <strong>Clasificación:</strong>
+    <ul>
+        <li><strong>Congruenciales:</strong> Lineal, Mixto y Multiplicativo.</li>
+        <li><strong>No congruenciales:</strong> Cuadrado medio, Fibonacci y Autómata celular.</li>
+    </ul>
 </div>
+
 <form method="post" action="{{ url_for('random_generators') }}">
-  <select name="method" required>
-    <optgroup label="Congruenciales">
-      <option value="lineal" {% if method == 'lineal' %}selected{% endif %}>Lineal congruencial</option>
-      <option value="mixto" {% if method == 'mixto' %}selected{% endif %}>Mixto</option>
-      <option value="multiplicativo" {% if method == 'multiplicativo' %}selected{% endif %}>Multiplicativo</option>
-    </optgroup>
-    <optgroup label="No congruenciales">
-      <option value="cuadrado_medio" {% if method == 'cuadrado_medio' %}selected{% endif %}>Cuadrado medio</option>
-      <option value="fibonacci" {% if method == 'fibonacci' %}selected{% endif %}>Fibonacci</option>
-      <option value="automata_celular" {% if method == 'automata_celular' %}selected{% endif %}>Autómata celular</option>
-    </optgroup>
-  </select>
-  <input type="number" name="seed" placeholder="Semilla" required>
-  <input type="number" name="a" placeholder="a (si aplica)">
-  <input type="number" name="c" placeholder="c (si aplica)">
-  <input type="number" name="m" placeholder="m (si aplica)">
-  <input type="number" name="seed2" placeholder="Semilla 2 (si aplica)">
-  <input type="number" name="digits" placeholder="Dígitos (cuadrado medio)">
-  <input type="number" name="count" placeholder="Cantidad" value="10" required>
-  <button type="submit">Generar</button>
+
+    <select name="method" id="method" required>
+        <optgroup label="Congruenciales">
+            <option value="lineal" {% if method=="lineal" %}selected{% endif %}>Lineal congruencial</option>
+            <option value="mixto" {% if method=="mixto" %}selected{% endif %}>Mixto</option>
+            <option value="multiplicativo" {% if method=="multiplicativo" %}selected{% endif %}>Multiplicativo</option>
+        </optgroup>
+
+        <optgroup label="No congruenciales">
+            <option value="cuadrado_medio" {% if method=="cuadrado_medio" %}selected{% endif %}>Cuadrado medio</option>
+            <option value="fibonacci" {% if method=="fibonacci" %}selected{% endif %}>Fibonacci</option>
+            <option value="automata_celular" {% if method=="automata_celular" %}selected{% endif %}>Autómata celular</option>
+        </optgroup>
+    </select>
+
+    <div id="seed-field">
+        <input
+            type="number"
+            name="seed"
+            placeholder="Semilla"
+            value="{{ seed if seed is defined else 1 }}"
+            required>
+    </div>
+
+    <div id="a-field">
+        <input
+            type="number"
+            name="a"
+            placeholder="Parámetro a"
+            value="{{ a if a is defined else '' }}">
+    </div>
+
+    <div id="c-field">
+        <input
+            type="number"
+            name="c"
+            placeholder="Parámetro c"
+            value="{{ c if c is defined else '' }}">
+    </div>
+
+    <div id="m-field">
+        <input
+            type="number"
+            name="m"
+            placeholder="Módulo (m)"
+            value="{{ m if m is defined else '' }}">
+    </div>
+
+    <div id="seed2-field">
+        <input
+            type="number"
+            name="seed2"
+            placeholder="Segunda semilla"
+            value="{{ seed2 if seed2 is defined else '' }}">
+    </div>
+
+    <div id="digits-field">
+        <input
+            type="number"
+            name="digits"
+            placeholder="Cantidad de dígitos"
+            value="{{ digits if digits is defined else '' }}">
+    </div>
+
+    <div id="count-field">
+        <input
+            type="number"
+            name="count"
+            placeholder="Cantidad de números"
+            value="{{ count if count is defined else 10 }}"
+            required>
+    </div>
+
+    <button type="submit">
+        Generar
+    </button>
+
 </form>
+
 {% if sequence %}
 <div class="message">
-  <strong>Secuencia generada con {{ method_label }}:</strong><br>
-  {{ sequence }}
+    <strong>Secuencia generada con {{ method_label }}:</strong>
+    <br><br>
+
+    {{ sequence }}
+
 </div>
 {% endif %}
-<p><a href="{{ url_for('dashboard') }}">Volver al menú</a></p>
+
+<p>
+    <a href="{{ url_for('dashboard') }}">
+        Volver al menú
+    </a>
+</p>
+
+<script>
+
+function updateFields(){
+
+    const method=document.getElementById("method").value;
+
+    document.getElementById("a-field").style.display="none";
+    document.getElementById("c-field").style.display="none";
+    document.getElementById("m-field").style.display="none";
+    document.getElementById("seed2-field").style.display="none";
+    document.getElementById("digits-field").style.display="none";
+
+    switch(method){
+
+        case "lineal":
+        case "mixto":
+            document.getElementById("a-field").style.display="block";
+            document.getElementById("c-field").style.display="block";
+            document.getElementById("m-field").style.display="block";
+            break;
+
+        case "multiplicativo":
+            document.getElementById("a-field").style.display="block";
+            document.getElementById("m-field").style.display="block";
+            break;
+
+        case "cuadrado_medio":
+            document.getElementById("digits-field").style.display="block";
+            break;
+
+        case "fibonacci":
+            document.getElementById("seed2-field").style.display="block";
+            document.getElementById("m-field").style.display="block";
+            break;
+
+        case "automata_celular":
+            break;
+
+    }
+
+}
+
+document.getElementById("method").addEventListener("change", updateFields);
+
+window.onload=updateFields;
+
+</script>
+
 {% endblock %}
