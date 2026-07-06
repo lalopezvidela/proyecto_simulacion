@@ -34,16 +34,30 @@
 
     <section class="panel panel-wheel">
       <div class="wheel-stage">
-        <div class="wheel-card">
-          <div class="wheel-outer">
-            <div class="wheel-center"></div>
-            <div class="wheel-ball"></div>
-            <div class="wheel-pointer"></div>
-          </div>
+       <div class="wheel-card">
+
+    <div class="wheel-wrapper">
+
+    <div class="wheel-pointer"></div>
+
+    <svg id="wheel" width="340" height="340" viewBox="0 0 340 340">
+
+    </svg>
+
+    <div class="wheel-ball"></div>
+
+</div>
+
+    
+
+
+</div>
         </div>
         <div class="result-pill">
           <span class="label">Resultado</span>
-          <strong>{% if result %}{{ result.history[-1].number }} · {{ result.history[-1].color }}{% else %}Esperando giro{% endif %}</strong>
+          <strong>{% if result %}{{ result.history[-1].number }} · {% if result %}
+<input type="hidden" id="winning-number" value="{{ result.history[-1].number }}">
+{% endif %}{% else %}Esperando giro{% endif %}</strong>
         </div>
       </div>
     </section>
@@ -105,4 +119,137 @@
   </div>
   {% endif %}
 </div>
+<script>
+
+
+const svg=document.getElementById("wheel");
+
+const order=[
+0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,
+10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26
+];
+
+const red=[
+1,3,5,7,9,12,14,16,18,
+19,21,23,25,27,30,32,34,36
+];
+
+const cx=170;
+const cy=170;
+
+const outer=165;
+const inner=65;
+
+const step=360/order.length;
+
+for(let i=0;i<37;i++){
+
+    let start=(-95)+(i*step);
+    let end=start+step;
+
+    let x1=cx+outer*Math.cos(start*Math.PI/180);
+    let y1=cy+outer*Math.sin(start*Math.PI/180);
+
+    let x2=cx+outer*Math.cos(end*Math.PI/180);
+    let y2=cy+outer*Math.sin(end*Math.PI/180);
+
+    let x3=cx+inner*Math.cos(end*Math.PI/180);
+    let y3=cy+inner*Math.sin(end*Math.PI/180);
+
+    let x4=cx+inner*Math.cos(start*Math.PI/180);
+    let y4=cy+inner*Math.sin(start*Math.PI/180);
+
+    const color=
+        order[i]==0
+        ?"#0b8f3c"
+        :(red.includes(order[i])?"#c62828":"#111111");
+
+    const path=document.createElementNS("http://www.w3.org/2000/svg","path");
+
+    path.setAttribute("d",
+`M ${x1} ${y1}
+A ${outer} ${outer} 0 0 1 ${x2} ${y2}
+L ${x3} ${y3}
+A ${inner} ${inner} 0 0 0 ${x4} ${y4}
+Z`);
+
+    path.setAttribute("fill",color);
+    path.setAttribute("stroke","gold");
+    path.setAttribute("stroke-width","1");
+
+    svg.appendChild(path);
+
+    const angle=start+step/2;
+
+    const tx=cx+145*Math.cos(angle*Math.PI/180);
+    const ty=cy+145*Math.sin(angle*Math.PI/180);
+
+    const text=document.createElementNS("http://www.w3.org/2000/svg","text");
+
+    text.setAttribute("x",tx);
+    text.setAttribute("y",ty);
+
+    text.setAttribute("class","wheel-number");
+
+   if(order[i] == 0){
+    text.setAttribute("transform",
+    `rotate(0 ${tx} ${ty})`);
+}else{
+    text.setAttribute("transform",
+    `rotate(${angle+90} ${tx} ${ty})`);
+}
+
+    text.textContent=order[i];
+
+    svg.appendChild(text);
+
+}
+
+const center=document.createElementNS("http://www.w3.org/2000/svg","circle");
+
+center.setAttribute("cx",170);
+center.setAttribute("cy",170);
+center.setAttribute("r",55);
+center.setAttribute("fill","#1e293b");
+center.setAttribute("stroke","gold");
+center.setAttribute("stroke-width","6");
+
+svg.appendChild(center);
+
+</script>
+{% if result %}
+<input type="hidden" id="winning-number" value="{{ result.history[-1].number }}">
+{% endif %}
+
+<script>
+
+const rouletteOrder = [
+0,32,15,19,4,21,2,25,17,34,
+6,27,13,36,11,30,8,23,10,5,
+24,16,33,1,20,14,31,9,22,18,
+29,7,28,12,35,3,26
+];
+
+const wheel = document.getElementById("wheel");
+const hidden = document.getElementById("winning-number");
+
+if(hidden){
+
+    const winner = Number(hidden.value);
+
+    const index = rouletteOrder.indexOf(winner);
+
+    const anglePerSlot = 360 / 37;
+
+    const targetAngle = index * anglePerSlot;
+
+    const extraTurns = 360 * 6;
+
+    wheel.style.transform =
+        `rotate(${extraTurns - targetAngle}deg)`;
+
+}
+
+</script>
+
 {% endblock %}

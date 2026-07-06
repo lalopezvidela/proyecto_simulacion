@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
 <h2 style="margin-bottom:6px;">Sistema de simulación</h2>
-<p class="muted" style="margin-top:0;">Bienvenido al sistema de simulación</p>
+<p class="muted" style="margin-top:0;">Seleccione el método de simulación que desee utilizar</p>
 <div class="grid">
   <div class="card-item">
     <h3>Calculadora de simulación</h3>
-    <p class="muted">Explora modelos probabilísticos y métricas con una interfaz más clara.</p>
+    <p class="muted">Explora modelos probabilísticos y métricas.</p>
     <a href="{{ url_for('calculator') }}"><button>Abrir</button></a>
   </div>
   <div class="card-item">
@@ -25,7 +25,7 @@
   </div>
   <div class="card-item">
     <h3>Ruleta Monte Carlo</h3>
-    <p class="muted">Prueba una simulación de ruleta con apuestas y resultados estadísticos.</p>
+    <p class="muted"> Juega la ruleta con apuestas y resultados estadísticos. Aprende y diviertete!.</p>
     <a href="{{ url_for('roulette') }}"><button class="secondary">Abrir</button></a>
   </div>
 </div>
